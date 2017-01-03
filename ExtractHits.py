@@ -19,8 +19,8 @@ PROJECT = str(sys.argv[1])
 TARGETS_FILENAME = ''
 
 # Directory info - should not need to be changed
-BASE_PATH = '/home/tsmith/Data/TCGA'
-ANAL_PATH = '/home/tsmith/Analysis'
+#BASE_PATH = '/home/tsmith/Data/TCGA'
+#ANAL_PATH = '/home/tsmith/Analysis'
 
 # Build path to input/output files
 PICKLE_INFILE = '%s/%s/df_FPKM-UQ_with_MetaData' % (BASE_PATH, PROJECT)
