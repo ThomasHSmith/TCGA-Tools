@@ -6,15 +6,42 @@ import os
 import gzip
 import pandas as pd
 import numpy as np
-import sys
+import sys, getopt
+
+def main(argv):
+	HELP_MSG = 'Parse_FPKM.py -p <TCGA Project> -t <Targets List>'
+	PROJECT = ''
+	TARGETS_FILE = ''
+
+	try:
+		opts, args = getopt.getopt(argv, 'p:t:h',["project=","targets="])
+	# Print help msg if wrong cl args
+	except: getopt.GetoptError:
+		print HELP_MSG
+		sys.exit(2)
+	for o, arg in ops:
+		if o == '-h':
+			print HELP_MSG
+			sys.exit(2)
+		elif o in ('-p','--project'):
+			PROJECT = arg 
+		elif o in ('-t','--targets'):
+			TARGETS_FILE = arg
+	print 'TCGA Project: %s' % PROJECT
+	print 'Targets input file: %s' % TARGETS_FILE
+
+
 
 # Specify project name - must match Data subdirectory
 # containing FPKM-UQ_with_MetaData pickle file
+
 PROJECT = str(sys.argv[1]) 
 
 # Specifc gene hit list .txt file in format: Symbol ENSG
 # First gene on list will be considered gene of interest for correlation calculations
 # ie: F2RL3	ENSG00000127533
+# Path can be supplied below or with CLI -targets
+
 # Should be located in Analysis/TargetLists/
 TARGETS_FILENAME = ''
 
