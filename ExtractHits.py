@@ -1,3 +1,4 @@
+# Author: Thomas H Smith
 # Given FPKM-UQ df .pickle file and list of target genes in .txt
 # Return a new df pickle containing FPKM-UQ for targets and metadata 
 
