@@ -58,7 +58,10 @@ def main(argv):
 	df_targets = pd.DataFrame()
 	print 'Populating new dataframe...'
 	for key in targets_dict:
-        	df_targets.insert(0, key, df[targets_dict[key]])
+        	try:
+			df_targets.insert(0, key, df[targets_dict[key]])
+		except KeyError:
+			print '%s (%s) not found in Dataset' % (targets_dict[key], key)
 
 	# Create df containing log2-transformed values
 	df_targets_log2 = df_targets.apply(lambda x: np.log2(x+1))

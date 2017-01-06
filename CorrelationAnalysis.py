@@ -82,8 +82,17 @@ def main(argv):
 	# Grab all non-categorical data
 	df_vals = df.drop(['PtID','TumorStage','SampleType'],axis=1)
 	
+	## FIXME Add option for zero-filtering
+	L = []
+	zero_cutoff = 50
+	for column in df_vals:
+    		if (df_vals[df_vals[column]== 0].shape[0]) > zero_cutoff:
+        		L.append(column)	
+	df_vals.drop(L, inplace=True, axis=1)
+	log_echo('Dropped %d genes from list with zero values for > %d samples' % (len(L), zero_cutoff))
+
 	df_zscores = df_vals.apply(lambda x: stats.zscore(x))
-	#df_zscores['TissueType'] = df['TissueType'].values
+	df_zscores['TissueType'] = df['TissueType'].values
 
 	## FIXME Add option to inverse sorting
 	df_zscores.sort_values(TARGET_GENE, ascending=False, inplace=True)
@@ -109,19 +118,22 @@ def main(argv):
 
 ## FIXME GET Z_SCORE CUTOFF FROM COMMAND LINE
 ## FIXME APPLY Z-CUTOFF BEFORE CALC CORRELATION COEFF
-	z_cutoff = 5
-	log_echo('Filtering out cases with z-score > %i' % z_cutoff)
-	pre_filtered_n = len(df_zscores)
-	log_echo('Number of samples (before Z-cutoff): %d' % (pre_filtered_n))
-	for column in df_zscores:
-	    df_zscores.drop(df_zscores[df_zscores[column] > z_cutoff].index, inplace=True)
+#	z_cutoff = 5
+#	log_echo('Filtering out cases with z-score > %i' % z_cutoff)
+#	pre_filtered_n = len(df_zscores)
+#	log_echo('Number of samples (before Z-cutoff): %d' % (pre_filtered_n))
+#	for column in df_zscores:
+#	    df_zscores.drop(df_zscores[df_zscores[column] > z_cutoff].index, inplace=True)
 	post_filtered_n = len(df_zscores)
-	pct_lost = ( (pre_filtered_n - post_filtered_n)/float(pre_filtered_n)) * 100
-	log_echo('Number of samples (after Z-cutoff): %d' % (post_filtered_n))
-	log_echo('Dropped %d samples (%f%% of total dataset)\n' % ((-1*(post_filtered_n - pre_filtered_n)), pct_lost))
+#	pct_lost = ( (pre_filtered_n - post_filtered_n)/float(pre_filtered_n)) * 100
+#	log_echo('Number of samples (after Z-cutoff): %d' % (post_filtered_n))
+#	log_echo('Dropped %d samples (%f%% of total dataset)\n' % ((-1*(post_filtered_n - pre_filtered_n)), pct_lost))
 	
 	## FIXME FIG HEIGHT MIN
 	# Generate heatmap
+
+	## FIXME Add option for correlation min/max values to include on heatmap
+
 	FIG_HEIGHT = 5
 	if post_filtered_n > 70:
 		FIG_HEIGHT = int(post_filtered_n/35)
