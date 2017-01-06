@@ -1,10 +1,10 @@
 # TCGA-Tools
 
-This is a set of simple scripts that I wrote for the purpose of parsing/aggregating, filtering, and visualizing open-access RNA-Seq gene expression data obtained from the National Cancer Institute Genomic Data Commons (NCI-GDC, https://gdc-portal.nci.nih.gov/).  I have specifically used it for the TCGA project datasets.
+This is a set of simple scripts that I wrote for the purpose of parsing/aggregating, filtering, and visualizing open-access RNA-Seq gene expression data obtained from the National Cancer Institute Genomic Data Commons (NCI-GDC, <https://gdc-portal.nci.nih.gov>).  I have specifically used it for the TCGA project datasets.
 
 ## Getting Started
 ### 1. Data structure/download
-FPKM or FPKM-UQ data should be downloaded from NCI-GDC using their data transfer client, make sure to also download the metadata JSON file.  The downloaded data should have the following file structure:
+FPKM or FPKM-UQ data should be downloaded from NCI-GDC using their data transfer client <https://gdc.nci.nih.gov/access-data/gdc-data-transfer-tool>, make sure to also download the metadata JSON file.  The downloaded data should have the following file structure:
 
 	.
 	├── ExtractTargets.py
@@ -84,6 +84,6 @@ Coming soon
 
 
 ## License
-
+This work is licensed under the MIT License - see the LICENSE.md file for details.
 
 ## Acknowledgments
