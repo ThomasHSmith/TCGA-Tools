@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 
 def main(argv):
-	HELP_MSG = 'ExtractTargets.py -i <ValuesDataFrame.pickle> -t <TargetsList.txt> -o <Output dir> -p <Project name>'
+	HELP_MSG = 'ExtractTargets.py -i <ValuesDataFrame.pickle> -t <TargetsList.txt> -o <Output directory> -p <Project name>'
 
 	try:
 		opts, args = getopt.getopt(argv, 'i:t:o:p:h',['input=', 'targets=', 'output_dir=', 'project_name='])

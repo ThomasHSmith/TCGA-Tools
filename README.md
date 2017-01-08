@@ -3,6 +3,14 @@
 This is a set of simple scripts that I wrote for the purpose of parsing/aggregating, filtering, and visualizing open-access RNA-Seq gene expression data obtained from the National Cancer Institute Genomic Data Commons (NCI-GDC, <https://gdc-portal.nci.nih.gov>).  I have specifically used it for the TCGA project datasets.
 
 ## Getting Started
+
+
+### Prerequisites
+Python 2.7 (haven't tested with 3).  The following packages may need to be installed: Pandas, Tqdm, numpy, scipy.stats, seaborn, matplotlib.
+
+### Installing
+Coming soon
+
 ### 1. Data structure/download
 FPKM or FPKM-UQ data should be downloaded from NCI-GDC using their data transfer client <https://gdc.nci.nih.gov/access-data/gdc-data-transfer-tool>, make sure to also download the metadata JSON file.  The downloaded data should have the following file structure:
 
@@ -51,13 +59,13 @@ ParseAgg.py requires the following command-line arguments:
 	-d <path to top level data directory>
 	-m <path to metadata JSON file>
 	-o <path to output directory>
-	-n <project name (ie BRCA)>
+	-p <project name (ie BRCA)>
 
 Thus, to parse the data in the above example:
 
-	$ python ParseAgg.py -d /TestData -m TestData/BRCA_metadata.json -o TestData/Output -n BRCA
+	$ python ParseAgg.py -d /TestData -m TestData/BRCA_metadata.json -o TestData/Output -p BRCA
 
-The output will be a pickle containing the Pandas DataFrame with the aggregated counts data.  This file size can be several hundred MBs, depending on the number of cases parsed.  Each row of the DataFrame represents an individual case (eg patient sample), and columns contain FPKM-UQ values associated with each Ensembl gene ID.  
+The output will be a pickle containing the Pandas DataFrame with the aggregated counts data.  This file size can be several hundred MBs, depending on the number of cases parsed.  Each row of the DataFrame represents an individual case (e.g. patient sample), and columns contain FPKM-UQ values associated with each Ensembl gene ID.  
 
 Three additional columns will also be populated from the JSON metadata file: 'PtID', 'TumorStage', and 'SampleType'.  SampleType will be a two-digit code corresponding to the type of tissue from which the sample was acquired.  A list of SampleType codes is available at <https://gdc.cancer.gov/resources-tcga-users/tcga-code-tables/sample-type-codes>  Some of the more common codes I've encountered are listed below.
 
@@ -70,13 +78,41 @@ Three additional columns will also be populated from the JSON metadata file: 'Pt
  
 
 ### 3. Extract values for genes of interest with ExtractTargets.py
-The .pickle file that ParseAgg.py outputs contains FPKM-UQ values for all 60,486 Ensembl gene IDs from each sample.  ExtractTargets.py will create a new DataFrame containing aggregated data for only a specified subset of Ensembl gene IDs.  The pared down DataFrame will be saved as a .pickle and as an excel spreadsheet (xlsx).  
+The .pickle file that ParseAgg.py outputs contains FPKM-UQ values for all 60,486 Ensembl gene IDs from each sample.  ExtractTargets.py will create and output a new DataFrame containing aggregated data for only a specified subset of Ensembl gene IDs.  
+ExtractTargets.py requires the following command-line arguments:
 
-### Prerequisites
-Coming soon
+	-i <ValuesDataFrame.pickle>
+	-t <TargetsList.txt>
+	-o <Output directory>
+	-p <Project name>
 
-### Installing
-Coming soon
+Thus, to parse the data in the above example:
+
+	$ python ExtractTargets.py -i /TestData/Output/BRCA_aggregated_FPKM-UQ.pickle -t /TestData/targets.txt -o /TestData/Output -p BRCA
+
+Where targets.txt is a list containing the Ensembl IDs and associated gene names, for example:
+
+	F2RL3	  ENSG00000127533
+	GAPDH	  ENSG00000111640
+	WWTR1 (TAZ) ENSG00000018408
+
+ExtractTargets.py will generate DataFrames containing raw count values for selected targets and a separate one containing log2(x+1) transformed values.  Both DataFrames will be saved as .pickle and as Excel spreadsheets (.xlsx) for use in subsequent analysis/visualization.
+
+### 4. CorrelationAnalysis.py
+Calculate Pearson's and Spearman correlation coefficients between a target gene of interest and all other genes in the input DataFrame.  CorrelationAnalysis.py requires the following command-line arguments:
+
+	-i <ExtractedHits.pickle>
+	-t <Target gene>
+	-o <Output directory>
+	-p <Project name>
+
+CorrelationAnalysis.py outputs the Pearson's and Spearman correlation coefficients in a tab-delimited text document.  A heatmap is also generated (from z-scores of the input df, typically log2(FPKM-UQ) values) for visualizing trends in expression between the set of genes.  
+Future version will allow for more control of how the input data is processed, such as:  
+-setting a max z-score cut-off  
+-option to exclude certain sample types  
+-option to drop genes that have zero values over a certain threshold % of the samples  
+-option to exclude certain sample types (ie drop metastatic samples).
+ 
 
 ## Authors
 
@@ -84,6 +120,4 @@ Coming soon
 
 
 ## License
-This work is licensed under the MIT License - see the LICENSE.md file for details.
-
-## Acknowledgments
+This work is licensed under the MIT License - see LICENSE.md for details.

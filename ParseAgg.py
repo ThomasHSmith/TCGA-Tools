@@ -7,11 +7,11 @@ from tqdm import tqdm
 import json, sys, getopt, os, gzip
 
 def main(argv):
-	HELP_MSG = 'USAGE:\tParseAgg.py -d <Data dir> -m <Metadata file path> -o <Output dir> -p <Project name>\n\t-d:\tSpecify path to top data directory with structure top_dir/Subdir/CaseDir/FPKM-UQ.txt.gz>\n\t-m:\tSpecify path to JSON file containing TCGA metadata\n\t-o:\tSpecify directory to save output pickle\n\t-n\tSpecify a name for the project (ie BRCA), to prepend output file'
+	HELP_MSG = 'USAGE:\tParseAgg.py -d <Data dir> -m <Metadata file path> -o <Output dir> -p <Project name>\n\t-d:\tSpecify path to top data directory with structure top_dir/Subdir/CaseDir/FPKM-UQ.txt.gz>\n\t-m:\tSpecify path to JSON file containing TCGA metadata\n\t-o:\tSpecify directory to save output pickle\n\t-p\tSpecify a name for the project (ie BRCA), to prepend output file'
 	
 	
 	try:
-		opts, args = getopt.getopt(argv, 'd:m:o:n:h',['top_dir=','metadata=','output_dir=','project_name='])
+		opts, args = getopt.getopt(argv, 'd:m:o:p:h',['top_dir=','metadata=','output_dir=','project_name='])
 	# Print help msg if wrong cl args
 	except getopt.GetoptError:
 		print HELP_MSG
@@ -29,7 +29,7 @@ def main(argv):
 		elif o in ('-o','--output_dir'):
 			OUTPUT_DIR = arg
 			print 'Output directory path: %s' % OUTPUT_DIR	
-		elif o in ('-n','--project_name'):
+		elif o in ('-p','--project_name'):
 			PROJECT_NAME = arg
 			print 'Project name: %s' % PROJECT_NAME
 			PICKLE_OUTFILE = '%s/%s_aggregated_FPKM-UQ.pickle' % (OUTPUT_DIR, PROJECT_NAME)

@@ -25,13 +25,8 @@ def main(argv):
 		elif o in ('-p','--project_name'):
 			PROJECT_NAME = arg 
 
-# may need to sort values by target gene:
-# df_targets.sort_values(['SampleType', GENE_OF_INTEREST],ascending=False, inplace=True)
-# df_targets_log2.sort_values(['SampleType', GENE_OF_INTEREST],ascending=False, inplace=True)
 	import pandas as pd
-	import seaborn as sns
 	from scipy import stats
-	import matplotlib.pyplot as plt
 	print '\n\t***************'
 
 	def log_echo(msg):
@@ -68,7 +63,9 @@ def main(argv):
 
 	log_echo('\n\tTotal cases: %i\n\tSolid Tumor:%i\n\tMetastatic:%i\n\tRecurrent Solid Tumor:%i\n\tNormal Tissue:%i\n' % (total_n, solid_n, mets_n, recurr_n, norm_n))
 
+	
 ## FIXME ADD OPTION TO DROP SUBTYPES
+
 #log_msg = 'Dropping metastatic samples types...'
 #print log_msg
 #lf.write(log_msg+'\n')
@@ -89,7 +86,7 @@ def main(argv):
     		if (df_vals[df_vals[column]== 0].shape[0]) > zero_cutoff:
         		L.append(column)	
 	df_vals.drop(L, inplace=True, axis=1)
-	log_echo('Dropped %d genes from list with zero values for > %d samples' % (len(L), zero_cutoff))
+	log_echo('Dropped %d targets from list with zero values for > %d samples' % (len(L), zero_cutoff))
 
 	df_zscores = df_vals.apply(lambda x: stats.zscore(x))
 	df_zscores['TissueType'] = df['TissueType'].values
@@ -132,7 +129,8 @@ def main(argv):
 	## FIXME FIG HEIGHT MIN
 	# Generate heatmap
 
-	## FIXME Add option for correlation min/max values to include on heatmap
+	import seaborn as sns
+	import matplotlib.pyplot as plt
 
 	FIG_HEIGHT = 5
 	if post_filtered_n > 70:
