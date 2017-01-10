@@ -6,7 +6,7 @@ This is a set of simple scripts that I wrote for the purpose of parsing/aggregat
 
 
 ### Prerequisites
-Python 2.7 (haven't tested with 3).  The following packages may need to be installed: Pandas, Tqdm, numpy, scipy.stats, seaborn, matplotlib.
+Python 2.7 (haven't tested with 3).  The following packages are required: Pandas, Tqdm, numpy, scipy.stats, seaborn, matplotlib.
 
 ### Installing
 Coming soon
@@ -105,11 +105,13 @@ Calculate Pearson's and Spearman correlation coefficients between a target gene 
 	-t <Target gene>
 	-o <Output directory>
 	-p <Project name>
+	
+Running an analysis on the output generated above:
+	python CorrelationAnalysis.py -i TestData/Output/df_BRCA_targets_log2.pickle  -t F2RL3 -o TestData/Output/ -p BRCA
 
-CorrelationAnalysis.py outputs the Pearson's and Spearman correlation coefficients in a tab-delimited text document.  A heatmap is also generated (from z-scores of the input df, typically log2(FPKM-UQ) values) for visualizing trends in expression between the set of genes.  
-Future version will allow for more control of how the input data is processed, such as:  
+CorrelationAnalysis.py outputs the Pearson's and Spearman correlation coefficients in a tab-delimited text document.  A heatmap is also generated (from z-scores of the input df, typically log2(FPKM-UQ) values) for a visual representation of trends in expression between your target gene and each of the individual genes in your set.
+Future version will allow for more control over how the input data is processed, such as:  
 -setting a max z-score cut-off  
--option to exclude certain sample types  
 -option to drop genes that have zero values over a certain threshold % of the samples  
 -option to exclude certain sample types (ie drop metastatic samples).
  

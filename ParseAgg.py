@@ -27,7 +27,7 @@ def main(argv):
 			JSON_METADATA = arg
 			print 'Metadata file path: %s' % JSON_METADATA			
 		elif o in ('-o','--output_dir'):
-			OUTPUT_DIR = arg
+			OUTPUT_DIR = arg.rstrip('/')
 			print 'Output directory path: %s' % OUTPUT_DIR	
 		elif o in ('-p','--project_name'):
 			PROJECT_NAME = arg
