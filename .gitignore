@@ -13,3 +13,7 @@ tags
 .DS_Store
 TestingData/
 TestData/
+*.ipynd
+*.ipynb_checkpoints/
+sandbox.ipynb
+CorrelationAnalysisMod.py

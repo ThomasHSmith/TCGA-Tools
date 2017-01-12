@@ -66,14 +66,26 @@ def main(argv):
 	# Create df containing log2-transformed values
 	df_targets_log2 = df_targets.apply(lambda x: np.log2(x+1))
 	
+	# Convert TCGA classifier codes
+	# 11 - Normal tissue -> -2
+	# 01 - Solid tumor -> 0
+	# 02 - Recurrent solid tumor -> 1
+	# 06 - Mets -> 2
+	vals_dict = {'11':'NormalControl', '01':'SolidTumor', '02':'RecurrentSolidTumor', '06':'Metastatic'}
+	
+
 	# Populate metadata
 	df_targets.insert( len(df_targets.columns), 'PtID', df['PtID'])
 	df_targets.insert( len(df_targets.columns), 'TumorStage', df['TumorStage'])
-	df_targets.insert( len(df_targets.columns), 'SampleType', df['SampleType'])
+	#df_targets.insert( len(df_targets.columns), 'SampleType', df['SampleType'])
+	df_targets.insert( len(df_targets.columns), 'SampleType', df['SampleType'].apply(lambda x: vals_dict[x]))
+
 
 	df_targets_log2.insert( len(df_targets_log2.columns), 'PtID', df['PtID'])
 	df_targets_log2.insert( len(df_targets_log2.columns), 'TumorStage', df['TumorStage'])
-	df_targets_log2.insert( len(df_targets_log2.columns), 'SampleType', df['SampleType'])
+	#df_targets_log2.insert( len(df_targets_log2.columns), 'SampleType', df['SampleType'])
+	df_targets_log2.insert( len(df_targets_log2.columns), 'SampleType', df['SampleType'].apply(lambda x: vals_dict[x]))
+	
 
 	filename = EXCEL_OUTFILE
 	dir = os.path.dirname(filename)

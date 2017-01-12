@@ -41,19 +41,13 @@ def main(argv):
 	lf = open(ANAL_LOG_OUTFILE, 'w')
 	log_echo('Writing analysis log file to: %s' % (ANAL_LOG_OUTFILE.split('/')[-1]) )
 	log_echo('TCGA Project: %s' % PROJECT_NAME)
-	
+	log_echo('Gene of interest: %s' % TARGET_GENE)
 	df = pd.read_pickle(PICKLE_INFILE)
 	log_echo('Loaded dataframe from file: %s' % PICKLE_INFILE.split('/')[-1])
 
-	# Give Tissue type numerical value for heatmap
-	# 11 - Normal tissue -> -2
-	# 01 - Solid tumor -> 0
-	# 02 - Recurrent solid tumor -> 1
-	# 06 - Mets -> 2
 	vals_dict = {'11':-2, '01':0, '02':1, '06':2}
 	df['TissueType'] = df['SampleType'].apply(lambda x: vals_dict[x])
 
-	# Drop metastatic samples
 	total_n = df.shape[0]
 	norm_n = df[df['TissueType'] == -2].shape[0]
 	solid_n = df[df['TissueType'] == 0].shape[0]
@@ -64,32 +58,51 @@ def main(argv):
 	log_echo('\n\tTotal cases: %i\n\tSolid Tumor:%i\n\tMetastatic:%i\n\tRecurrent Solid Tumor:%i\n\tNormal Tissue:%i\n' % (total_n, solid_n, mets_n, recurr_n, norm_n))
 
 	
-## FIXME ADD OPTION TO DROP SUBTYPES
+	## FIXME ADD OPTION TO DROP SUBTYPES
 
-#log_msg = 'Dropping metastatic samples types...'
-#print log_msg
-#lf.write(log_msg+'\n')
-#pre_drop = df.shape[0]
-#df = df[df['TissueType'] != -3]
-#log_msg = 'Dropped %i metastatic cases' % (pre_drop- df.shape[0])
-#print log_msg
-#lf.write(log_msg+'\n')
+	#pre_drop = df.shape[0]
+	#df = df[df['TissueType'] != -3]
+	#log_msg = 'Dropped %i metastatic cases' % (pre_drop- df.shape[0])
+	#log_echo(log_msg)
 
 	## FIXME Add option to include SampleType in correlation calculations?
 	# Grab all non-categorical data
 	df_vals = df.drop(['PtID','TumorStage','SampleType'],axis=1)
 	
 	## FIXME Add option for zero-filtering
-	L = []
-	zero_cutoff = 50
+#	L = []
+#	zero_cutoff = 50
+#	for column in df_vals:
+#    		if (df_vals[df_vals[column]== 0].shape[0]) > zero_cutoff:
+#        		L.append(column)	
+#	df_vals.drop(L, inplace=True, axis=1)
+#	log_echo('Dropped %d targets from list with zero values for > %d samples' % (len(L), zero_cutoff))
+	
+	z_cutoff = 5
+	log_echo('Filtering out cases with z-score > %i' % z_cutoff)
+	pre_filtered_n = len(df_zscores)
+	log_echo('Number of samples (before Z-cutoff): %d' % (pre_filtered_n))
+	df_zscores = pd.DataFrame()
 	for column in df_vals:
-    		if (df_vals[df_vals[column]== 0].shape[0]) > zero_cutoff:
-        		L.append(column)	
-	df_vals.drop(L, inplace=True, axis=1)
-	log_echo('Dropped %d targets from list with zero values for > %d samples' % (len(L), zero_cutoff))
-
-	df_zscores = df_vals.apply(lambda x: stats.zscore(x))
+   		df_zscores[column] = stats.zscore(df_vals[column])
+	
+	df_zscores = pd.DataFrame()
+	for column in df:
+    		df_zscores[column] = stats.zscore(df[column])
 	df_zscores['TissueType'] = df['TissueType'].values
+	for column in df_zscores:
+    		df_zscores.drop(df_zscores[df_zscores[column] > z_cutoff_high].index, inplace=True)
+	
+	post_filtered_n = len(df_zscores)
+	pct_lost = ( (pre_filtered_n - post_filtered_n)/float(pre_filtered_n)) * 100
+	log_echo('Number of samples (after Z-cutoff): %d' % (post_filtered_n))
+	log_echo('Dropped %d samples (%f%% of total dataset)\n' % ((-1*(post_filtered_n - pre_filtered_n)), pct_lost))
+	
+
+	# Move target gene to first position
+	target_col = df_zscores[TARGET_GENE]
+	df_zscores.drop(labels=[TARGET_GENE], axis=1, inplace=True)
+	df_zscores.insert(0, TARGET_GENE, target_col)
 
 	## FIXME Add option to inverse sorting
 	df_zscores.sort_values(TARGET_GENE, ascending=False, inplace=True)
@@ -115,17 +128,11 @@ def main(argv):
 
 ## FIXME GET Z_SCORE CUTOFF FROM COMMAND LINE
 ## FIXME APPLY Z-CUTOFF BEFORE CALC CORRELATION COEFF
-#	z_cutoff = 5
-#	log_echo('Filtering out cases with z-score > %i' % z_cutoff)
-#	pre_filtered_n = len(df_zscores)
-#	log_echo('Number of samples (before Z-cutoff): %d' % (pre_filtered_n))
-#	for column in df_zscores:
-#	    df_zscores.drop(df_zscores[df_zscores[column] > z_cutoff].index, inplace=True)
-	post_filtered_n = len(df_zscores)
-#	pct_lost = ( (pre_filtered_n - post_filtered_n)/float(pre_filtered_n)) * 100
-#	log_echo('Number of samples (after Z-cutoff): %d' % (post_filtered_n))
-#	log_echo('Dropped %d samples (%f%% of total dataset)\n' % ((-1*(post_filtered_n - pre_filtered_n)), pct_lost))
-	
+	df_filtered = pd.DataFrame()
+	for column in df_zscores:
+		df_filtered[column] = df_zscores[df_zscores[column] <= z_cutoff].index
+		#df_zscores.drop(df_zscores[df_zscores[column] > z_cutoff].index, inplace=True)
+	#post_filtered_n = len(df_zscores)
 	## FIXME FIG HEIGHT MIN
 	# Generate heatmap
 
@@ -134,7 +141,7 @@ def main(argv):
 
 	FIG_HEIGHT = 5
 	if post_filtered_n > 70:
-		FIG_HEIGHT = int(post_filtered_n/35)
+		FIG_HEIGHT = int(post_filtered_n/45)
 	plt.figure(figsize=(25,FIG_HEIGHT))
 	sns.heatmap(df_zscores,yticklabels=False, xticklabels=True)
 	#plt.show()
