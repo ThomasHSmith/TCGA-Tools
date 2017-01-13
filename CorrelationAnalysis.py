@@ -4,12 +4,10 @@
 import sys, argparse, os, datetime, errno
 import pandas as pd
 from scipy import stats
+import numpy as np
 
-
-#def main(argv):
-
-#TARGET_GENE, PICKLE_INFILE, OUT_PATH, PROJECT_NAME = '','','',''
 now=str(datetime.datetime.now()).split()
+
 # Get input from user cl arguments
 parser = argparse.ArgumentParser(description='CorrelationAnalysis', add_help=True)
 
@@ -56,6 +54,18 @@ parser.add_argument('--invert', required=False,
 parser.add_argument('-f','--file_format', required=False,
 	help="Option to save heatmap as different format "
 	"(eps, ps, or pdf) default is pdf", default='pdf')
+
+parser.add_argument('--corr_include_ctrl', required=False,
+	help="Option to include control samples in correlation"
+	"calculations.  They are discluded by default",
+	default=False, action='store_true')
+
+parser.add_argument('--no_sorting', required=False,
+	help="Option to disable arranging heatmap with "
+	"highest correlated genes from left to right. "
+	"Sorting is on by default", default=False,
+	action='store_true')
+	
 
 args = parser.parse_args()
 
@@ -111,14 +121,21 @@ log_echo(msg)
 	# Grab all non-categorical data
 
 
-def ComputeCorrelation():
+def ComputeCorrelation(TARGET_GENE):
 	""" Correlation calculations """
 	# Compute pearson and spearman correlation coefficients for target gene and all target genes
-	# Write results to tab-delimited txt file
+	# Writes results to tab-delimited txt file
+	# FIXME Exclude control samples from analysis by default
+	# FIXME add cl opt to include control samples
+	if args.corr_include_ctrl == False:
+		df_samples = df[ df['SampleType'] != 'NormalControl']
+		df_corr2 = df_samples.select_dtypes(exclude=['object'])
+	if args.corr_include_ctrl == True:
+		df_corr2 = df.select_dtypes(exclude=['object'])
 
-	df_corr2 = df.select_dtypes(exclude=['object'])
 	if TARGET_GENE == '':
 		TARGET_GENE = df_corr2.columns[0]
+
 	target_col = df_corr2[TARGET_GENE]
 	df_corr = df_corr2.drop(labels=[TARGET_GENE], axis=1)
 	df_corr.insert(0, TARGET_GENE, target_col)
@@ -130,27 +147,35 @@ def ComputeCorrelation():
 	header = 'Gene\t PearsonR (p)\t SpearmanR (p)'
 	log_echo(header)
 	f.write(header + '\n')
+	corrs_dict = {}
 	for column in df_corr:
     		y = list(df_corr[column])
     		pearsonR, pearsonP = stats.pearsonr(x, y)
     		spearmanR, spearmanP = stats.spearmanr(x, y)
 	    	line = '%s\t%.3f (%.3E)\t%.3f (%.3E)' % (column, pearsonR, pearsonP, spearmanR, spearmanP)
+		corrs_dict[column] = np.mean(pearsonR + spearmanR)
     		log_echo(line)	   
     		f.write(line+'\n')
 	f.close()
-	log_echo('Saved correlation data to: %s\n' % CORRELATION_OUTFILE.split('/')[-1])
+	log_echo('Saved correlation data to: %s\n' % CORRELATION_OUTFILE)
+	if args.no_sorting == False:
+		sorted_means = corrs_dict.values()
+		sorted_means.sort(reverse=True)
+		sorted_cols = [ corrs_dict.keys()[corrs_dict.values().index(item)] for item in sorted_means]
+	else: sorted_cols = corrs_dict.keys()
+	return sorted_cols
 
 if args.no_corr == False:
-	ComputeCorrelation()
+	sorted_cols = ComputeCorrelation(TARGET_GENE)
 
-
+## FIXME Convert z-score conversion to function
 """ Calculate z-scores """
 # Create new df for z-scores
 if Z_CUTOFF >= 0:
 	df_z = df.select_dtypes(exclude=['object']).apply(stats.zscore)
 elif Z_CUTOFF == -1:  # Option to not plot z-scores
 	df_z = df.select_dtypes(exclude=['object'])	
-
+df_z = df_z[sorted_cols]
 SampleToInt = {'NormalControl':-3, 'SolidTumor':0, 'Metastatic':0}
 df_z.insert(len(df_z.columns), 'SampleType', df['SampleType'].apply(lambda x: SampleToInt[x]))
 target_col = df_z[TARGET_GENE]
