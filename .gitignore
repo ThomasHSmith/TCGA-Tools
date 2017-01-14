@@ -13,11 +13,10 @@ tags
 .DS_Store
 TestingData/
 TestData/
-*.ipynd
+*.ipynb
 *.ipynb_checkpoints/
 sandbox.ipynb
 CorrelationAnalysisMod.py
 BlockGrid.java
-.ipynb
 Untitled.ipynb sandbox.ipynb
 Untitled.ipynb sandbox.ipynb
