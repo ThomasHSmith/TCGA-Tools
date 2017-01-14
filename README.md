@@ -99,21 +99,53 @@ Where targets.txt is a list containing the Ensembl IDs and associated gene names
 ExtractTargets.py will generate DataFrames containing raw count values for selected targets and a separate one containing log2(x+1) transformed values.  Both DataFrames will be saved as .pickle and as Excel spreadsheets (.xlsx) for use in subsequent analysis/visualization.
 
 ### 4. CorrelationAnalysis.py
-Calculate Pearson's and Spearman correlation coefficients between a target gene of interest and all other genes in the input DataFrame.  CorrelationAnalysis.py requires the following command-line arguments:
+Calculate Pearson's and Spearman correlation coefficients between a target gene of interest and all other genes in the input DataFrame.  CorrelationAnalysis.py only strictly requires an input dataframe .pickle:
 
-	-i <ExtractedHits.pickle>
-	-t <Target gene>
-	-o <Output directory>
-	-p <Project name>
+		usage: CorrelationAnalysis.py [-h] -i INPUT_DF [-t TARGET_GENE]
+                              [-o OUTPUT_DIR] [-p PROJECT_NAME] [-z Z_CUTOFF]
+                              [--no_heat] [--no_corr] [--invert]
+                              [-f FILE_FORMAT] [--corr_include_ctrl]
+                              [--no_sorting]
+
+	CorrelationAnalysis
+
+	optional arguments:
+	  -h, --help            show this help message and exit
+	  -i INPUT_DF, --input_df INPUT_DF
+	                        Path to df_log2.pickle file that was generated from
+	                        ExtractTargets.py Ex: '-i BRCA_hippo_df_log2.pickle'
+	  -t TARGET_GENE, --target_gene TARGET_GENE
+	                        Target gene of interest! Must match name from the
+	                        targets file. Default will choose firstgene in list
+	                        Ex: '-t F2RL3'
+	  -o OUTPUT_DIR, --output_dir OUTPUT_DIR
+	                        Folder to save output files to? Ex: '-o ./output'
+	                        Default is current directory
+	  -p PROJECT_NAME, --project_name PROJECT_NAME
+	                        Short name to add on to the output files Ex: '-p
+	                        BRCA_F2RL3_20160606' Default is target/date_time
+	  -z Z_CUTOFF, --z_cutoff Z_CUTOFF
+	                        Exclude samples with z-scores above andbelow a certain
+	                        threshold. Default is 5. Set to 0 for no cutoff. Set
+	                        to -1 to disable z-score conversion
+	  --no_heat             Option to disable generation of heatmap
+	  --no_corr             Option to disable generation of correlation data
+	  --invert              Option to invert sorting of target gene on heatmap ie
+	                        lowest expressers will be on top
+	  -f FILE_FORMAT, --file_format FILE_FORMAT
+	                        Option to save heatmap as different format (eps, ps,
+	                        or pdf) default is pdf
+	  --corr_include_ctrl   Option to include control samples in
+	                        correlationcalculations. They are discluded by default
+	  --no_sorting          Option to disable arranging heatmap with highest
+	                        correlated genes from left to right. Sorting is on by
+	                        default
 	
-Running an analysis on the output generated above:
-	python CorrelationAnalysis.py -i TestData/Output/df_BRCA_targets_log2.pickle  -t F2RL3 -o TestData/Output/ -p BRCA
 
 CorrelationAnalysis.py outputs the Pearson's and Spearman correlation coefficients in a tab-delimited text document.  A heatmap is also generated (from z-scores of the input df, typically log2(FPKM-UQ) values) for a visual representation of trends in expression between your target gene and each of the individual genes in your set.
 Future version will allow for more control over how the input data is processed, such as:  
--setting a max z-score cut-off  
--option to drop genes that have zero values over a certain threshold % of the samples  
--option to exclude certain sample types (ie drop metastatic samples).
+<li>option to drop genes that have zero values over a certain threshold % of the samples  
+<li>option to exclude certain sample types (ie drop metastatic samples).
  
 
 ## Authors
