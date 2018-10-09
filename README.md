@@ -151,7 +151,3 @@ Future version will allow for more control over how the input data is processed,
 ## Authors
 
 * **Thomas Smith** - [ThomasHSmith](https://github.com/ThomasHSmith)
-
-
-## License
-This work is licensed under the MIT License - see LICENSE.md for details.
