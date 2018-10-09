@@ -1,6 +1,6 @@
 # TCGA-Tools
 
-This is a set of simple scripts that I wrote for the purpose of parsing/aggregating, filtering, and visualizing open-access RNA-Seq gene expression data obtained from the National Cancer Institute Genomic Data Commons (NCI-GDC, <https://gdc-portal.nci.nih.gov>).  I have specifically used it for the TCGA project datasets.  Parsed datasets can be loaded into (TCGA-Tools-GUI, https://github.com/ThomasHSmith/TCGA-Tools-GUI) for easy analysis and visualization.
+This is a set of simple scripts that I wrote for the purpose of parsing/aggregating, filtering, and visualizing open-access RNA-Seq gene expression data obtained from the National Cancer Institute Genomic Data Commons [NCI-GDC](https://gdc-portal.nci.nih.gov).  I have specifically used it for the TCGA project datasets.  Parsed datasets can be loaded into [TCGA-Tools-GUI](https://github.com/ThomasHSmith/TCGA-Tools-GUI) for easy analysis and visualization.
 
 ## Getting Started
 
